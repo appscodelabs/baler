@@ -135,7 +135,7 @@ def pack_manifest(manifest, dest=REPO_ROOT):
                     os.makedirs(layer_dir + '/' + layer)
                     call('mv {0}/{1}/layer.tar {2}/{3}/layer.tar'.format(d, layer, layer_dir, layer))
 
-    call('docker rmi {0}'.format(img))
+    # call('docker rmi {0}'.format(img))
     call('tar -czf {0}.tar.gz {0}'.format(bundle), cwd=tmp)
     call('mv {0}/{1}.tar.gz .'.format(tmp, bundle), cwd=dest)
     call('rm -rf {0}'.format(tmp))
