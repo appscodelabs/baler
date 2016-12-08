@@ -4,14 +4,17 @@ import io
 import json
 import os
 import os.path
+import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
 from collections import OrderedDict
 from os.path import expandvars
+from threading import Timer
 
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+# REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.getcwd()
 
 
 def read_file(name):
@@ -68,6 +71,23 @@ def die(status):
 def check_output(cmd, stdin=None, cwd=REPO_ROOT):
     print(cmd)
     return subprocess.check_output([expandvars(cmd)], shell=True, stdin=stdin, cwd=cwd)
+
+
+def kill_proc(proc, timeout):
+    timeout["value"] = True
+    proc.kill()
+
+
+# ref: http://stackoverflow.com/a/10768774
+def run(cmd, timeout_sec, stdin=None):
+    print(cmd)
+    proc = subprocess.Popen(shlex.split(cmd), stdin=stdin)
+    timeout = {"value": False}
+    timer = Timer(timeout_sec, kill_proc, [proc, timeout])
+    timer.start()
+    proc.communicate()
+    timer.cancel()
+    return proc.returncode, timeout["value"]
 
 
 def pack(path):
@@ -134,7 +154,11 @@ def unpack(path):
     root = tmp + '/' + bundle
     layer_dir = root + '/__layers'
     if not os.path.isdir(layer_dir):
-        os.makedirs('layers are missing')
+        print 'layers are missing'
+        die(1)
+
+    if not os.path.isdir(REPO_ROOT + '/' + bundle):
+        os.makedirs(REPO_ROOT + '/' + bundle)
 
     for name in os.listdir(root):
         d = root + '/' + name
@@ -144,16 +168,33 @@ def unpack(path):
         for layer in read_json(d + '/manifest.json')[0]['Layers']:
             layer = layer[:-len('/layer.tar')]
             call('cp -r {0}/{1}/layer.tar {2}/{1}/layer.tar'.format(layer_dir, layer, d))
-        call('tar -czvf ../{0}.tar .'.format(name), cwd=d)
-        call('rm -rf {0}'.format(name), cwd=root)
-        call('docker load -i {0}.tar'.format(name), cwd=root)
+        call('tar -czvf {0}/{1}/{2}.tar .'.format(REPO_ROOT, bundle, name), cwd=d)
     call('rm -rf {0}'.format(tmp))
+
+# ref: https://github.com/kubernetes/kubernetes/blob/v1.4.6/cluster/saltbase/salt/kube-master-addons/kube-master-addons.sh
+def load(path):
+    path = os.path.abspath(path)
+    if not os.path.isfile(path):
+        print '{0} is not a file'.format(path)
+        die(1)
+
+    bundle = os.path.basename(path)
+    if '.' in bundle:
+        bundle = bundle[:bundle.index('.')]
+
+    # unpack(path)
+    d = REPO_ROOT + '/' + bundle
+    while True:
+        restart_docker = False
+        for img in os.listdir(d):
+            if os.path.isfile(d + '/' + img):
+                ret, timeout = run('docker load -i {0}/{1}'.format(d, img), 120)
+                restart_docker = timeout or ret != 0
+        if restart_docker:
+            call('systemctl restart docker')
+        else:
+            break
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        # http://stackoverflow.com/a/834451
-        # http://stackoverflow.com/a/817296
-        globals()[sys.argv[1]](*sys.argv[2:])
-    else:
-        default()
+    globals()[sys.argv[1]](*sys.argv[2:])
