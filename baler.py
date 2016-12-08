@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
 import io
 import json
 import os
@@ -96,8 +97,10 @@ def pack(path):
     if not os.path.isfile(path):
         print '{0} is not a file'.format(path)
         die(1)
+    pack_manifest(read_json(path))
 
-    manifest = read_json(path)
+
+def pack_manifest(manifest):
     bundle = manifest['name']
 
     tmp = tempfile.mkdtemp()
