@@ -100,7 +100,6 @@ def pack(path):
     manifest = read_json(path)
     bundle = manifest['name']
 
-    # tmp = '/Users/tamal/Desktop/baler'  # tempfile.mkdtemp()
     tmp = tempfile.mkdtemp()
     root = tmp + '/' + bundle
     layer_dir = root + '/__layers'
@@ -150,7 +149,6 @@ def unpack(path):
     if '.' in bundle:
         bundle = bundle[:bundle.index('.')]
 
-    # tmp = '/Users/tamal/Desktop/baler'  # tempfile.mkdtemp()
     tmp = tempfile.mkdtemp()
     call('tar -xzvf {0}'.format(path), cwd=tmp)
     root = tmp + '/' + bundle
