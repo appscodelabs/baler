@@ -100,7 +100,7 @@ def pack(path):
     pack_manifest(read_json(path))
 
 
-def pack_manifest(manifest):
+def pack_manifest(manifest, dest=REPO_ROOT):
     bundle = manifest['name']
 
     tmp = tempfile.mkdtemp()
@@ -137,7 +137,7 @@ def pack_manifest(manifest):
 
     call('docker rmi {0}'.format(img))
     call('tar -czf {0}.tar.gz {0}'.format(bundle), cwd=tmp)
-    call('mv {0}/{1}.tar.gz .'.format(tmp, bundle))
+    call('mv {0}/{1}.tar.gz .'.format(tmp, bundle), cwd=dest)
     call('rm -rf {0}'.format(tmp))
 
 
