@@ -92,12 +92,12 @@ def run(cmd, timeout_sec, stdin=None):
 
 
 # path to manifest
-def pack(path):
+def pack(path, dest=REPO_ROOT):
     path = os.path.abspath(path)
     if not os.path.isfile(path):
         print '{0} is not a file'.format(path)
         die(1)
-    pack_manifest(read_json(path))
+    pack_manifest(read_json(path), dest)
 
 
 def pack_manifest(manifest, dest=REPO_ROOT):
