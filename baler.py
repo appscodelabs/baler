@@ -184,7 +184,7 @@ def load(path):
     if '.' in bundle:
         bundle = bundle[:bundle.index('.')]
 
-    # unpack(path)
+    unpack(path)
     d = REPO_ROOT + '/' + bundle
     while True:
         restart_docker = False
@@ -196,6 +196,8 @@ def load(path):
             call('systemctl restart docker')
         else:
             break
+    call('rm -rf {0}'.format(d))
+
 
 # path to manifest
 def rmi(path):
