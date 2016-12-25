@@ -95,7 +95,7 @@ def run(cmd, timeout_sec, stdin=None):
 def pack(path, dest=REPO_ROOT):
     path = os.path.abspath(path)
     if not os.path.isfile(path):
-        print '{0} is not a file'.format(path)
+        print('{0} is not a file'.format(path))
         die(1)
     pack_manifest(read_json(path), dest)
 
@@ -110,12 +110,12 @@ def pack_manifest(manifest, dest=REPO_ROOT):
         os.makedirs(layer_dir)
 
     for img in manifest['images']:
-        print img
+        print(img)
         if '/' in img:
             name = img[img.rindex('/') + 1:img.rindex(':')]
         else:
             name = img[0:img.rindex(':')]
-        print 'Saving docker image:', img
+        print('Saving docker image:', img)
         d = root + '/' + name
 
         call('docker pull {0}'.format(img))
@@ -149,7 +149,7 @@ def unpack(path, dest=REPO_ROOT):
 
     path = os.path.abspath(path)
     if not os.path.isfile(path):
-        print '{0} is not a file'.format(path)
+        print('{0} is not a file'.format(path))
         die(1)
 
     bundle = os.path.basename(path)
@@ -157,11 +157,18 @@ def unpack(path, dest=REPO_ROOT):
         bundle = bundle[:bundle.index('.')]
 
     tmp = tempfile.mkdtemp()
-    call('tar -xzvf {0}'.format(path), cwd=tmp)
+    print('Using temporary dir: ' + tmp)
+    print('-------------------------------------------------------------------------------------')
+
+    print('[*] Extracting archive ...')
+    call('tar -xzf {0}'.format(path), cwd=tmp)
+    print('_____________________________________________________________________________________')
+    print('')
+
     root = tmp + '/' + bundle
     layer_dir = root + '/__layers'
     if not os.path.isdir(layer_dir):
-        print 'layers are missing'
+        print('layers are missing')
         die(1)
 
     if not os.path.isdir(dest + '/' + bundle):
@@ -171,11 +178,19 @@ def unpack(path, dest=REPO_ROOT):
         d = root + '/' + name
         if name == '__layers' or not os.path.isdir(d):
             continue
-        print name
+        print('')
+        print('[*] Image: ' + name)
+        print('-------------------------------------------------------------------------------------')
+        print('[-] copying layers ...')
         for layer in read_json(d + '/manifest.json')[0]['Layers']:
             layer = layer[:-len('/layer.tar')]
             call('cp -r {0}/{1}/layer.tar {2}/{1}/layer.tar'.format(layer_dir, layer, d))
-        call('tar -czvf {0}/{1}/{2}.tar .'.format(dest, bundle, name), cwd=d)
+        print('')
+
+        print('[-] repackaging image ...')
+        call('tar -czf {0}/{1}/{2}.tar .'.format(dest, bundle, name), cwd=d)
+        print('_____________________________________________________________________________________')
+        print('')
     call('rm -rf {0}'.format(tmp))
 
 
@@ -188,7 +203,7 @@ def load(path, dest=REPO_ROOT):
 
     path = os.path.abspath(path)
     if not os.path.isfile(path):
-        print '{0} is not a file'.format(path)
+        print('{0} is not a file'.format(path))
         die(1)
 
     bundle = os.path.basename(path)
@@ -214,7 +229,7 @@ def load(path, dest=REPO_ROOT):
 def rmi(path):
     path = os.path.abspath(path)
     if not os.path.isfile(path):
-        print '{0} is not a file'.format(path)
+        print('{0} is not a file'.format(path))
         die(1)
 
     manifest = read_json(path)
