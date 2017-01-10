@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/appscode/baler/baler"
+	term "github.com/appscode/go-term"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +18,8 @@ func NewCmdLoad() *cobra.Command {
 				fmt.Println("ERROR : Provide a archive path")
 				os.Exit(1)
 			}
-			baler.Load(args[0])
+			err := baler.Load(args[0])
+			term.ExitOnError(err)
 		},
 	}
 	return cmd

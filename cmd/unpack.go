@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/appscode/baler/baler"
+	term "github.com/appscode/go-term"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,8 @@ func NewCmdUnpack() *cobra.Command {
 				fmt.Println("ERROR : Provide a CharName")
 				os.Exit(1)
 			}
-			baler.Unpack(args[0], destDir)
+			err := baler.Unpack(args[0], destDir)
+			term.ExitOnError(err)
 		},
 	}
 	cmd.Flags().StringVarP(&destDir, "dest-dir", "d", cwd, "Specify the location where baler package will be unpacked(default: cwd).")

@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/mitchellh/ioprogress"
@@ -97,12 +99,58 @@ func Pack(manifestPath, dest string) error {
 	return os.Rename(fmt.Sprintf("%s/%s.tar.gz", tmp, mf.Name), fmt.Sprintf("%s/%s.tar.gz", dest, mf.Name))
 }
 
-func Unpack(archivePath, dest string) {
-
+func Unpack(archivePath, dest string) error {
+	var err error
+	if strings.HasPrefix(archivePath, "http://") || strings.HasPrefix(archivePath, "https://") {
+		archivePath, err = download(archivePath)
+		if err != nil {
+			return err
+		}
+	}
+	return err
 }
 
-func Load(archivePath string) {
+func Load(archivePath string) error {
+	var err error
+	if strings.HasPrefix(archivePath, "http://") || strings.HasPrefix(archivePath, "https://") {
+		archivePath, err = download(archivePath)
+		if err != nil {
+			return err
+		}
+	}
 
+	fi, err := os.Stat(archivePath)
+	if err == nil && fi.IsDir() {
+		return fmt.Errorf("%s is not a file", archivePath)
+	}
+	mfName := filepath.Base(archivePath)
+	if strings.Contains(mfName, ".") {
+		mfName = mfName[:strings.Index(mfName, ".")]
+	}
+
+	destDir, _ := os.Getwd()
+	Unpack(archivePath, destDir)
+	d := destDir + "/" + mfName
+	sh := newShell()
+	for {
+		restart := false
+		images, err := ioutil.ReadDir(d)
+		if err != nil {
+			return err
+		}
+		for _, img := range images {
+			if !img.IsDir() {
+				err = sh.Command("docker", "load", "-i", d+"/"+img.Name()).SetTimeout(120 * time.Second).Run()
+				restart = err != nil
+			}
+		}
+		if restart {
+			sh.Command("systemctl", "restart", "docker").Run()
+		} else {
+			break
+		}
+	}
+	return err
 }
 
 func RemoveImages(manifestPath string) error {
