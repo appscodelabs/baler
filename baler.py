@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from __future__ import absolute_import
-import io
 import json
 import os
 import os.path
@@ -23,32 +22,6 @@ except ImportError:
 REPO_ROOT = os.getcwd()
 
 
-def read_file(name):
-    with open(name, 'r') as f:
-        return f.read()
-    return ''
-
-
-def write_file(name, content):
-    dir = os.path.dirname(name)
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    with open(name, 'w') as f:
-        return f.write(content)
-
-
-def append_file(name, content):
-    with open(name, 'a') as f:
-        return f.write(content)
-
-
-def write_checksum(folder, file):
-    cmd = "openssl md5 {0} | sed 's/^.* //' > {0}.md5".format(file)
-    subprocess.call(cmd, shell=True, cwd=folder)
-    cmd = "openssl sha1 {0} | sed 's/^.* //' > {0}.sha1".format(file)
-    subprocess.call(cmd, shell=True, cwd=folder)
-
-
 # TODO: use unicode encoding
 def read_json(name):
     try:
@@ -58,25 +31,19 @@ def read_json(name):
         return {}
 
 
-def write_json(obj, name):
-    with io.open(name, 'w') as f:
-        data = json.dumps(obj, indent=2, separators=(',', ': '), ensure_ascii=False)
-        f.write(data)
+def sh(cmd, stdin=None, cwd=REPO_ROOT):
+    print(cmd)
+    return subprocess.call([expandvars(cmd)], shell=True, stdout=subprocess.PIPE, stdin=stdin, cwd=cwd)
 
 
 def call(cmd, stdin=None, cwd=REPO_ROOT):
     print(cmd)
-    return subprocess.call([expandvars(cmd)], shell=True, stdin=stdin, cwd=cwd)
+    return subprocess.call(shlex.split(expandvars(cmd)), shell=False, stdout=subprocess.PIPE, stdin=stdin, cwd=cwd)
 
 
 def die(status):
     if status:
         sys.exit(status)
-
-
-def check_output(cmd, stdin=None, cwd=REPO_ROOT):
-    print(cmd)
-    return subprocess.check_output([expandvars(cmd)], shell=True, stdin=stdin, cwd=cwd)
 
 
 def kill_proc(proc, timeout):
@@ -129,7 +96,7 @@ def pack_manifest(manifest, dest=REPO_ROOT):
         if not os.path.isdir(d):
             os.makedirs(d)
 
-        call('docker save {0} > {1}/docker.tar'.format(img, d))
+        sh('docker save {0} > {1}/docker.tar'.format(img, d))
         call('tar xvf docker.tar', cwd=d)
         call('rm docker.tar', cwd=d)
         for layer in os.listdir(d):
