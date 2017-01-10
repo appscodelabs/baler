@@ -47,6 +47,7 @@ libbuild.BIN_MATRIX = {
     'baler': {
         'type': 'go',
         'go_version': True,
+        'release': True,
         'distro': {
             'darwin': ['amd64'],
             'linux': ['amd64'],
