@@ -2,6 +2,7 @@ package baler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -107,6 +108,83 @@ func Unpack(archivePath, dest string) error {
 			return err
 		}
 	}
+
+	fi, err := os.Stat(archivePath)
+	if err == nil && fi.IsDir() {
+		return fmt.Errorf("%s is not a file", archivePath)
+	}
+	mfName := filepath.Base(archivePath)
+	if strings.Contains(mfName, ".") {
+		mfName = mfName[:strings.Index(mfName, ".")]
+	}
+
+	tmp, err := ioutil.TempDir("", "baler")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmp)
+	fmt.Println("Using temporary dir:", tmp)
+	fmt.Println("-------------------------------------------------------------------------------------")
+
+	fmt.Println("[*] Extracting archive ...")
+	sh := newShell()
+	sh.SetDir(tmp)
+	sh.Command("tar", "-xzf", archivePath).Run()
+	fmt.Println("_____________________________________________________________________________________")
+	fmt.Println()
+
+	root := tmp + "/" + mfName
+	layerDir := root + "/__layers"
+	fi, err = os.Stat(layerDir)
+	if os.IsNotExist(err) || (err == nil && !fi.IsDir()) {
+		return errors.New("Layers are missing.")
+	}
+	os.MkdirAll(dest+"/"+mfName, 0755)
+
+	images, err := ioutil.ReadDir(root)
+	if err != nil {
+		return err
+	}
+	for _, img := range images {
+		if img.Name() == "__layers" || !img.IsDir() {
+			continue
+		}
+
+		fmt.Println()
+		fmt.Println("[*] Image:", img.Name())
+		fmt.Println("-------------------------------------------------------------------------------------")
+		fmt.Println("[-] copying layers ...")
+
+		d := root + "/" + img.Name()
+		mfBytes, err := ioutil.ReadFile(d + "/manifest.json")
+		if err != nil {
+			return err
+		}
+		var imgMFs []ImageManifest
+		err = json.Unmarshal(mfBytes, &imgMFs)
+		if err != nil {
+			return err
+		}
+		for _, imgMF := range imgMFs {
+			for _, layer := range imgMF.Layers {
+				layer = layer[:len(layer)-len("/layer.tar")]
+				err = sh.Command("cp", "-r", fmt.Sprintf("%s/%s/layer.tar", layerDir, layer), fmt.Sprintf("%s/%s/layer.tar", layerDir, d)).Run()
+				if err != nil {
+					return err
+				}
+			}
+		}
+		fmt.Println()
+
+		fmt.Println("[-] repackaging image ...")
+		sh.SetDir(d)
+		err = sh.Command("tar", "-czf", fmt.Sprintf("%s/%s/%s.tar", dest, mfName, img.Name())).Run()
+		if err != nil {
+			return err
+		}
+		fmt.Println("_____________________________________________________________________________________")
+		fmt.Println("")
+	}
 	return err
 }
 
@@ -175,13 +253,13 @@ func newShell() *shell.Session {
 	return session
 }
 
-func loadManifest(manifestPath string) (*Manifest, error) {
+func loadManifest(manifestPath string) (*BalerManifest, error) {
 	data, err := ioutil.ReadFile(manifestPath)
 	if err != nil {
 		return nil, err
 	}
 
-	var mf Manifest
+	var mf BalerManifest
 	err = json.Unmarshal(data, &mf)
 	if err != nil {
 		return nil, err
