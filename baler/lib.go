@@ -23,11 +23,14 @@ func Pack(manifestPath, dest string) error {
 		return err
 	}
 
-	tmp, err := ioutil.TempDir("", "baler")
+	// https://github.com/hashicorp/consul-template/issues/58
+	tmp, err := ioutil.TempDir(dest, "baler")
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(tmp)
+	fmt.Println("Using temporary dir:", tmp)
+	fmt.Println("-------------------------------------------------------------------------------------")
 
 	root := tmp + "/" + mf.Name
 	layerDir := root + "/__layers"
@@ -109,6 +112,11 @@ func Unpack(archivePath, dest string) error {
 		}
 	}
 
+	archivePath, err = filepath.Abs(archivePath)
+	if err != nil {
+		return err
+	}
+
 	fi, err := os.Stat(archivePath)
 	if err == nil && fi.IsDir() {
 		return fmt.Errorf("%s is not a file", archivePath)
@@ -118,7 +126,8 @@ func Unpack(archivePath, dest string) error {
 		mfName = mfName[:strings.Index(mfName, ".")]
 	}
 
-	tmp, err := ioutil.TempDir("", "baler")
+	// https://github.com/hashicorp/consul-template/issues/58
+	tmp, err := ioutil.TempDir(dest, "baler")
 	if err != nil {
 		return err
 	}
@@ -168,7 +177,7 @@ func Unpack(archivePath, dest string) error {
 		for _, imgMF := range imgMFs {
 			for _, layer := range imgMF.Layers {
 				layer = layer[:len(layer)-len("/layer.tar")]
-				err = sh.Command("cp", "-r", fmt.Sprintf("%s/%s/layer.tar", layerDir, layer), fmt.Sprintf("%s/%s/layer.tar", layerDir, d)).Run()
+				err = sh.Command("cp", "-r", fmt.Sprintf("%s/%s/layer.tar", layerDir, layer), fmt.Sprintf("%s/%s/layer.tar", d, layer)).Run()
 				if err != nil {
 					return err
 				}
@@ -178,7 +187,7 @@ func Unpack(archivePath, dest string) error {
 
 		fmt.Println("[-] repackaging image ...")
 		sh.SetDir(d)
-		err = sh.Command("tar", "-czf", fmt.Sprintf("%s/%s/%s.tar", dest, mfName, img.Name())).Run()
+		err = sh.Command("tar", "-czf", fmt.Sprintf("%s/%s/%s.tar", dest, mfName, img.Name()), ".").Run()
 		if err != nil {
 			return err
 		}
