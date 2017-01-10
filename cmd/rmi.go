@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/appscode/baler/baler"
+	"github.com/appscode/go-term"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +18,8 @@ func NewCmdRMI() *cobra.Command {
 				fmt.Println("ERROR : Provide a manifest path")
 				os.Exit(1)
 			}
-			baler.RemoveImages(args[0])
+			err := baler.RemoveImages(args[0])
+			term.ExitOnError(err)
 		},
 	}
 	return cmd

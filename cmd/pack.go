@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/appscode/baler/baler"
+	term "github.com/appscode/go-term"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,8 @@ func NewCmdPack() *cobra.Command {
 				fmt.Println("ERROR : Provide a manifest path")
 				os.Exit(1)
 			}
-			baler.Pack(args[0], destDir)
+			err := baler.Pack(args[0], destDir)
+			term.ExitOnError(err)
 		},
 	}
 	cmd.Flags().StringVarP(&destDir, "dest-dir", "d", cwd, "Specify the location where baler archive will be stored(default: cwd).")

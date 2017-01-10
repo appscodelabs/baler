@@ -1,0 +1,44 @@
+hash: 79daa6fe3edee6fa31cf95669bfd83446777204b75792c60d139a3d578a17f61
+updated: 2017-01-10T11:31:49.663571728-08:00
+imports:
+- name: github.com/appscode/errors
+  version: 6a668ba07d02064c06707b7d8b0f5239db707045
+- name: github.com/appscode/go
+  version: a7f716de7a1373d1e8a5b31728166ada8e7595c6
+  subpackages:
+  - env
+  - version
+- name: github.com/appscode/go-term
+  version: f0c7b686d3cdde6617f1ef058cd3060a4289118d
+- name: github.com/appscode/log
+  version: 68e0e42e42c01371f3950571fc87c2298a51dd8f
+- name: github.com/codegangsta/inject
+  version: 33e0aa1cb7c019ccc3fbe049a8262a6403d30504
+- name: github.com/codeskyblue/go-sh
+  version: be861dc5215a0272f69a782cab3fec8c9855e448
+  repo: https://github.com/appscode/go-sh.git
+- name: github.com/facebookgo/stack
+  version: d9d227395bc3d7a635388c75b2e3b3a750e11888
+- name: github.com/fatih/color
+  version: 9aae6aaa22315390f03959adca2c4d395b02fcef
+- name: github.com/golang/glog
+  version: 44145f04b68cf362d9c4df2182967c2275eaefed
+- name: github.com/inconshreveable/go-update
+  version: 8152e7eb6ccf8679a64582a66b78519688d156ad
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/mattn/go-colorable
+  version: 3dac7b4f76f6e17fb39b768b89e3783d16e237fe
+- name: github.com/mattn/go-isatty
+  version: 56b76bdf51f7708750eac80fa38b952bb9f32639
+- name: github.com/mitchellh/ioprogress
+  version: 8163955264568045f462ae7e2d6d07b2001fc997
+- name: github.com/spf13/cobra
+  version: 9c28e4bbd74e5c3ed7aacbc552b2cab7cfdfe744
+- name: github.com/spf13/pflag
+  version: c7e63cf4530bcd3ba943729cee0efeff2ebea63f
+- name: golang.org/x/sys
+  version: 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
+  subpackages:
+  - unix
+testImports: []

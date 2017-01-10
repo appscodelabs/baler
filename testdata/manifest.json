@@ -3,6 +3,6 @@
   "images": [
     "debian:8.6",
     "appscode/base:8.6",
-    "appscode/kubed:0.3"
+    "appscode/kubed:1.5.0"
   ]
 }
