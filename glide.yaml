@@ -3,6 +3,5 @@ import:
 - package: github.com/appscode/go
 - package: github.com/spf13/cobra
 - package: github.com/codeskyblue/go-sh
-  repo: https://github.com/appscode/go-sh.git
   version: master
 - package: github.com/inconshreveable/go-update

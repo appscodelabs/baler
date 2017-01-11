@@ -55,7 +55,7 @@ func Pack(manifestPath, dest string) error {
 			return err
 		}
 
-		err = sh.Command("docker", "save", img).WriteOutput(d + "/docker.tar")
+		err = sh.Command("docker", "save", img).WriteStdout(d + "/docker.tar")
 		if err != nil {
 			return err
 		}
