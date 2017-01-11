@@ -7,7 +7,7 @@ Save and Load a collection of Docker Images from a compact archive
 
 ## Installation
 ```go
-go install github.com/appscode/baler
+go get -u github.com/appscode/baler
 ```
 
 ### Issues
