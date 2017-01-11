@@ -33,6 +33,17 @@ Flags:
 
 Use "baler [command] --help" for more information about a command.
 ```
+### Sample Baler Manifest
+```json
+{
+  "name": "test",
+  "images": [
+    "debian:8.6",
+    "appscode/base:8.6",
+    "appscode/kubed:1.5.0"
+  ]
+}
+```
 
 ### Issues
 Please file an issue if you think you've found a bug. Be sure to describe
