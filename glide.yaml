@@ -2,6 +2,7 @@ package: github.com/appscode/baler
 import:
 - package: github.com/appscode/go
 - package: github.com/spf13/cobra
+  version: master
 - package: github.com/codeskyblue/go-sh
   version: master
 - package: github.com/inconshreveable/go-update

@@ -1,10 +1,10 @@
-hash: f5e8935e59a457bf512ffab85513b8684c022c6d0f50a6f5fd09a2c80d7b405b
-updated: 2017-01-11T04:42:09.6056863-08:00
+hash: 14c625f662c524c13cf2290f084605f428e9735b74ba7025c961aa9bdcdf0575
+updated: 2017-01-15T01:57:34.86513248-08:00
 imports:
 - name: github.com/appscode/errors
   version: 6a668ba07d02064c06707b7d8b0f5239db707045
 - name: github.com/appscode/go
-  version: a7f716de7a1373d1e8a5b31728166ada8e7595c6
+  version: c69e23742f9631e337197faa35c6d7ee1a93ee6c
   subpackages:
   - env
   - version
@@ -15,7 +15,7 @@ imports:
 - name: github.com/codegangsta/inject
   version: 33e0aa1cb7c019ccc3fbe049a8262a6403d30504
 - name: github.com/codeskyblue/go-sh
-  version: 08caafab876678b277879a0320e4d4b763bdb14c
+  version: b097669b1569203c3ce05a6b8717d43140fdb3d5
 - name: github.com/facebookgo/stack
   version: d9d227395bc3d7a635388c75b2e3b3a750e11888
 - name: github.com/fatih/color
@@ -33,9 +33,9 @@ imports:
 - name: github.com/mitchellh/ioprogress
   version: 8163955264568045f462ae7e2d6d07b2001fc997
 - name: github.com/spf13/cobra
-  version: f62e98d28ab7ad31d707ba837a966378465c7b57
+  version: 1dd5ff2e11b6dca62fdcb275eb804b94607d8b06
 - name: github.com/spf13/pflag
-  version: 5ccb023bc27df288a957c5e994cd44fd19619465
+  version: c7e63cf4530bcd3ba943729cee0efeff2ebea63f
 - name: golang.org/x/sys
   version: 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
   subpackages:
